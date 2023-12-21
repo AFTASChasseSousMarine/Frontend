@@ -1,0 +1,181 @@
+<div>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+        <div *ngFor="let member of competition.rankings.slice(0, 3); let i = index"
+             class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+            <div class="flex-shrink-0">
+                <img class="h-10 w-10 rounded-full"
+                     src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                     alt="">
+            </div>
+            <div class="flex-1 min-w-0">
+                    <span class="absolute inset-0" aria-hidden="true"></span>
+                    <p class="text-sm font-medium text-gray-900">
+                        {{member.member.name}}
+                    </p>
+                    <p class="text-sm text-gray-500 truncate">{{member.member.identityDocumentType}}</p>
+                    <p class="text-sm text-gray-500 truncate">this the number {{i + 1}}</p>
+
+            </div>
+        </div>
+
+        <!-- More people... -->
+    </div>
+
+    <button type="button"
+            *ngIf="getCompetitionStatus(competition) === 'UPCOMING'" (click)="showRegisterForm = true"
+            class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 mt-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+        Add Member
+    </button>
+
+    <div [class.hidden]="!showRegisterForm" class="popup-form p-4 z-50">
+        <form [formGroup]="registerForm" (ngSubmit)="operation === 'add' ? registerMember() : null"
+              class="py-6 px-9">
+
+            <div class="mb-5">
+                <div class="flex flex-col">
+                    <label for="memberId" class="text-sm font-medium text-gray-500">Member</label>
+                    <input type="number" id="memberId" formControlName="memberId" placeholder="Enter member numero"
+                           class="mt-1 p-2 border rounded-md">
+                </div>
+            </div>
+
+
+            <div class="mb-5 flex space-x-8">
+                <button type="submit"
+                        class="hover:shadow-form w-30 rounded-md bg-[#6A64F1] py-3 px-8 text-center text-base font-semibold text-white outline-none">
+                    {{ operation === 'add' ? 'Ajouter' : 'Modifier' }}
+                </button>
+                <button type="button" (click)="cancelAddOrEdit()"
+                        class="hover:shadow-form w-30 rounded-md bg-[#9D1818] py-3 px-8 text-center text-base font-semibold text-white outline-none">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!--// add member to the competition-->
+    <div [class.hidden]="!showForm" class="popup-form p-4 z-50">
+        <form [formGroup]="huntingForm" (ngSubmit)="operation === 'add' ? registerHunting() : null"
+              class="py-6 px-9">
+            <div>
+                <label
+                        for="numberOfFishes"
+                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                    Name
+                </label>
+                <input type="number" name="name" id="numberOfFishes" formControlName="numberOfFish"
+                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                       placeholder="number of fishes" required>
+            </div>
+
+            <div class="mb-6">
+                <label
+                        for="fish"
+                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                    Identity Document Type
+                </label>
+                <select
+                        id="fish"
+                        name="fish"
+                        formControlName="fishId"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        required>
+                    <option *ngFor="let option of fishes" [value]="option.id">>
+                        {{ option.name }}
+                    </option>
+                </select>
+            </div>
+
+
+
+            <div class="mb-5 flex space-x-8">
+                <button type="submit"
+                        class="hover:shadow-form w-30 rounded-md bg-[#6A64F1] py-3 px-8 text-center text-base font-semibold text-white outline-none">
+                    {{ operation === 'add' ? 'Ajouter' : 'Modifier' }}
+                </button>
+                <button type="button" (click)="cancelAddOrEdit()"
+                        class="hover:shadow-form w-30 rounded-md bg-[#9D1818] py-3 px-8 text-center text-base font-semibold text-white outline-none">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="mt-8 flex flex-col">
+        <div class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 align-middle">
+                <div class="shadow-sm ring-1 ring-black ring-opacity-5">
+                    <table class="min-w-full border-separate" style="border-spacing: 0">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
+                                Name
+                            </th>
+                            <th scope="col"
+                                class="sticky top-0 z-10 hidden border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter lg:table-cell">
+                                nationality
+                            </th>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                identityDocumentType
+                            </th>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                Score
+                            </th>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter">
+                                Rank
+                            </th>
+                            <th scope="col"
+                                class="sticky top-0 z-10 border-b border-gray-300 bg-gray-50 bg-opacity-75 py-3.5 pr-4 pl-3 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8">
+                                <span class="">
+                                  Add Hunting
+                                </span>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                        <tr
+                                *ngFor="let member of competition.rankings"
+                        >
+                            <td
+                                    class="whitespace-nowrap border-b border-gray-200 py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8">
+                                {{member.member.name}}
+                            </td>
+                            <td
+                                    class="whitespace-nowrap border-b border-gray-200 px-3 py-4 text-sm text-gray-500">
+                                {{member.member.nationality}}
+                            </td>
+                            <td
+                                    class="whitespace-nowrap border-b border-gray-200 px-3 py-4 text-sm text-gray-500 hidden sm:table-cell">
+                                {{member.member.identityDocumentType}}
+                            </td>
+                            <td
+                                    class="whitespace-nowrap border-b border-gray-200 px-3 py-4 text-sm text-gray-500 hidden sm:table-cell">
+                                {{member.score == null ? 0 : member.score}}
+                            </td>
+                            <td
+                                    class="whitespace-nowrap border-b border-gray-200 px-3 py-4 text-sm text-gray-500 hidden sm:table-cell">
+                                {{member.rank == null ? 0 : member.rank}}
+                            </td>
+                            <td
+                                    class="relative whitespace-nowrap border-b border-gray-200 py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-6 lg:pr-8">
+                                <a (click)="getMemberId(member.member.id)"
+
+                                   class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+                                    Add hunting
+                                </a>
+                            </td>
+
+                            <!-- More people... -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
